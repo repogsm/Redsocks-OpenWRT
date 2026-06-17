@@ -1,6 +1,6 @@
 # Redsocks OpenWRT with LuCI Web UI
 
-Redsocks is a transparent TCP-to-SOCKS redirector proxy client. This project provides a simple script and configuration setup to easily run Redsocks on an OpenWRT router, complete with a modern **LuCI Web UI** interface (for OpenWrt 21.02+ / 22.03+ / 23.05+). 
+Redsocks is a transparent TCP-to-SOCKS redirector proxy client. This project provides a simple script and configuration setup to easily run Redsocks on an OpenWRT router, complete with a modern **LuCI Web UI** interface (for OpenWrt 21.02+ / 22.03+ / 23.05+ / 24.10+ / 25.12+). 
 
 It is ideal for routing all LAN traffic through a SOCKS5/SOCKS4 proxy server (e.g., for bypass configurations or SOCKS5 proxies).
 
@@ -82,9 +82,17 @@ uci commit redsocks
 If you prefer to configure everything manually:
 
 ### Step 1: Update packages and install dependencies
+
+#### For OpenWrt 24.10 and older (using  opkg ):
 ```bash
 opkg update
 opkg install iptables iptables-mod-nat-extra redsocks
+```
+
+#### For OpenWrt 25.12 and newer (using  apk ):
+```bash
+apk update
+apk add iptables iptables-mod-nat-extra redsocks
 ```
 
 ### Step 2: Download configuration and script files
@@ -123,10 +131,18 @@ If you want to secure these leaks, you can implement these optional, non-intrusi
 ### A. Prevent DNS Leaks (DNS-over-HTTPS)
 By encrypting DNS requests over HTTPS (TCP port 443), they are automatically captured by Redsocks and securely routed through your SOCKS5 proxy:
 1. SSH into your router and install the lightweight DoH client:
-   ```bash
-   opkg update
-   opkg install https-dns-proxy
-   ```
+
+  - **For OpenWrt 24.10 and older (using  opkg ):**
+    ```bash
+    opkg update
+    opkg install https-dns-proxy
+    ```
+  - **For OpenWrt 25.12 and newer (using  apk ):**
+    ```bash
+    apk update
+    apk add https-dns-proxy
+    ```
+
 2. Enable and start the service:
    ```bash
    /etc/init.d/https-dns-proxy enable
@@ -139,10 +155,17 @@ By encrypting DNS requests over HTTPS (TCP port 443), they are automatically cap
   /etc/init.d/https-dns-proxy disable
   ```
 * **To Uninstall**: Completely remove the package:
-  ```bash
-  opkg remove https-dns-proxy
-  ```
 
+  - **For OpenWrt 24.10 and older (using  opkg ):**
+    ```bash
+    opkg remove https-dns-proxy
+    ```
+
+  - **For OpenWrt 25.12 and newer (using  apk ):**
+    ```bash
+    apk del https-dns-proxy
+    ```
+  
 ### B. Prevent WebRTC Leaks (Block WAN UDP)
 Force browsers to fall back to secure TCP connections for WebRTC by blocking outgoing UDP traffic from client devices (except standard DNS on port 53 and NTP time sync on port 123):
 1. Navigate to **Network** -> **Firewall** -> **Custom Rules** in LuCI (or edit `/etc/firewall.user`).
